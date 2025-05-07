@@ -38,6 +38,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="file" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="profile/index"
+        options={{
+          title: "Profil",
+          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+        }}
+      />
     </Tabs>
   );
 }
