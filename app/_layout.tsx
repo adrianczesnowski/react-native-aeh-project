@@ -12,7 +12,7 @@ import "react-native-reanimated";
 
 import { useColorScheme } from "@/components/useColorScheme";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
-import { TransactionProvider } from "@/context/TransactionContxt";
+import { TransactionProvider } from "@/context/TransactionContext";
 import { DocumentProvider } from "@/context/DocumentContext";
 import { NetworkProvider } from "@/context/NetworkContext";
 

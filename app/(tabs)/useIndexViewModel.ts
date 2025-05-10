@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { router } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
-import { useTransactions, Transaction } from "../../context/TransactionContext";
+
 import { useAuth } from "../../context/AuthContext";
 import { useNetwork } from "../../context/NetworkContext";
+import { Transaction, useTransactions } from "@/context/TransactionContext";
 
 export function useIndexViewModel() {
   const { user } = useAuth();

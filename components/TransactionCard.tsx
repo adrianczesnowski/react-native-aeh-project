@@ -1,7 +1,7 @@
 import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Transaction } from "../context/TransactionContext";
 import Colors from "../constants/Colors";
+import { Transaction } from "@/context/TransactionContext";
 
 type TransactionCardProps = {
   transaction: Transaction;
