@@ -29,9 +29,9 @@ export function useDocumentsViewModel() {
     [scanDocument]
   );
 
-//   const handleView = useCallback((id: string) => {
-//     router.push(`/document-details/${id}`);
-//   }, []);
+  const handleView = useCallback((id: string) => {
+    router.push(`/document-details/${id}`);
+  }, []);
 
   const handleDelete = useCallback(
     (doc: Document) => {
@@ -60,7 +60,7 @@ export function useDocumentsViewModel() {
     scannerVisible,
     openScanner,
     handleScan,
-    // handleView,
+    handleView,
     handleDelete,
     setScannerVisible,
   };

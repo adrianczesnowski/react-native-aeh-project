@@ -22,7 +22,7 @@ export default function DocumentsScreen() {
     openScanner,
     setScannerVisible,
     handleScan,
-    // handleView,
+    handleView,
     handleDelete,
   } = useDocumentsViewModel();
 
@@ -46,7 +46,7 @@ export default function DocumentsScreen() {
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.documentCard}
-              //   onPress={() => handleView(item.id)}
+              onPress={() => handleView(item.id)}
               onLongPress={() => handleDelete(item)}
               delayLongPress={500}
             >
