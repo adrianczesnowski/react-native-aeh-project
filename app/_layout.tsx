@@ -12,6 +12,9 @@ import "react-native-reanimated";
 
 import { useColorScheme } from "@/components/useColorScheme";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { TransactionProvider } from "@/context/TransactionContxt";
+import { DocumentProvider } from "@/context/DocumentContext";
+import { NetworkProvider } from "@/context/NetworkContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -72,18 +75,44 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <AuthProvider>
-      <AuthGuard>
-        <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-            <Stack.Screen name="login/index" options={{ headerShown: false }} />
-          </Stack>
-        </ThemeProvider>
-      </AuthGuard>
-    </AuthProvider>
+    <NetworkProvider>
+      <AuthProvider>
+        <AuthGuard>
+          <TransactionProvider>
+            <DocumentProvider>
+              <ThemeProvider
+                value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+              >
+                <Stack>
+                  <Stack.Screen
+                    name="(tabs)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="modal/index"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="transaction-details/[id]"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="document-details/[id]"
+                    options={{
+                      title: "Szczególy dokumentu",
+                      headerBackTitle: "Powrót",
+                    }}
+                  />
+                  <Stack.Screen
+                    name="login/index"
+                    options={{ headerShown: false }}
+                  />
+                </Stack>
+              </ThemeProvider>
+            </DocumentProvider>
+          </TransactionProvider>
+        </AuthGuard>
+      </AuthProvider>
+    </NetworkProvider>
   );
 }
