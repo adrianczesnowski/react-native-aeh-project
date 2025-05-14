@@ -32,6 +32,20 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="income/index"
+        options={{
+          title: "Przychody",
+          tabBarIcon: ({ color }) => <TabBarIcon name="plus" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="expenses/index"
+        options={{
+          title: "Wydatki",
+          tabBarIcon: ({ color }) => <TabBarIcon name="minus" color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="documents/index"
         options={{
           title: "Dokumenty",
