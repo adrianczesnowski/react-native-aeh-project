@@ -3,17 +3,17 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   ActivityIndicator,
+  ScrollView,
   TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useDocumentDetailsViewModel } from "./useDocumentDetailsViewModel";
 import Colors from "@/constants/Colors";
+import { useTransactionDetailsViewModel } from "./useTransactionDetailsViewModel";
 
-export default function DocumentDetailsScreen() {
-  const { document, loading, isConnected, goBack } =
-    useDocumentDetailsViewModel();
+export default function TransactionDetailsScreen() {
+  const { transaction, loading, goBack, getCategoryName, getCategoryIcon } =
+    useTransactionDetailsViewModel();
 
   if (loading) {
     return (
@@ -22,11 +22,12 @@ export default function DocumentDetailsScreen() {
       </View>
     );
   }
-  if (!document) {
+
+  if (!transaction) {
     return (
       <View style={styles.errorContainer}>
         <Ionicons name="alert-circle-outline" size={64} color={Colors.red} />
-        <Text>Nie znaleziono dokumentu</Text>
+        <Text>Nie znaleziono transakcji</Text>
         <TouchableOpacity onPress={goBack}>
           <Text style={styles.buttonText}>Powrót</Text>
         </TouchableOpacity>
@@ -34,28 +35,118 @@ export default function DocumentDetailsScreen() {
     );
   }
 
+  const formatted = new Date(transaction.date).toLocaleDateString("pl-PL", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{document.title}</Text>
-      <Text style={styles.date}>
-        {new Date(document.date).toLocaleDateString("pl-PL", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })}
-      </Text>
-      <Image
-        source={{ uri: document.imageUri }}
-        style={styles.image}
-        resizeMode="contain"
-      />
-      {!isConnected && (
-        <Text style={styles.offlineText}>Udostępnianie wymaga połączenia</Text>
-      )}
+    <ScrollView style={styles.container}>
+      <View style={styles.card}>
+        <View style={styles.header}>
+          <View style={styles.row}>
+            <View
+              style={[
+                styles.iconContainer,
+                {
+                  backgroundColor:
+                    transaction.type === "income" ? Colors.green : Colors.red,
+                },
+              ]}
+            >
+              <Ionicons
+                name={getCategoryIcon(transaction.category)}
+                size={24}
+                color="white"
+              />
+            </View>
+            <View style={styles.infoContainer}>
+              <Text style={styles.type}>
+                {transaction.type === "income" ? "Przychód" : "Wydatek"}
+              </Text>
+              <Text style={styles.category}>
+                {getCategoryName(transaction.category)}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.divider} />
+
+        <View style={styles.detailsContainer}>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>
+              {transaction.type === "income" ? "Przychód" : "Wydatek"}
+            </Text>
+            <Text
+              style={[
+                styles.detailValue,
+                {
+                  color:
+                    transaction.type === "income" ? Colors.green : Colors.red,
+                },
+              ]}
+            >
+              {transaction.amount.toFixed(2)} zł
+            </Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Data</Text>
+            <Text style={styles.detailValue}>{formatted}</Text>
+          </View>
+          {transaction.description ? (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Opis</Text>
+              <Text style={styles.detailValue}>{transaction.description}</Text>
+            </View>
+          ) : null}
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Status</Text>
+            <View style={styles.statusContainer}>
+              {transaction.synced ? (
+                <>
+                  <Ionicons
+                    name="cloud-done-outline"
+                    size={16}
+                    color={Colors.green}
+                  />
+                  <Text
+                    style={[
+                      styles.detailValue,
+                      { color: Colors.green, marginLeft: 4 },
+                    ]}
+                  >
+                    Synchronizowano
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <Ionicons
+                    name="cloud-upload-outline"
+                    size={16}
+                    color={Colors.gray}
+                  />
+                  <Text
+                    style={[
+                      styles.detailValue,
+                      { color: Colors.gray, marginLeft: 4 },
+                    ]}
+                  >
+                    Oczekuje na synchronizację
+                  </Text>
+                </>
+              )}
+            </View>
+          </View>
+        </View>
+      </View>
       <TouchableOpacity style={styles.backButton} onPress={goBack}>
         <Text style={styles.backButtonText}>Powrót</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -64,12 +155,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f5f5f5",
     padding: 16,
+    paddingTop: 64,
+  },
+  card: {
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
   },
   errorContainer: {
     flex: 1,
@@ -84,67 +186,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     textAlign: "center",
   },
-  card: {
-    backgroundColor: "white",
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 8,
-  },
-  date: {
-    fontSize: 14,
-    color: "#888",
-    marginBottom: 20,
-  },
-  imageContainer: {
-    width: "100%",
-    height: 400,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 8,
-    marginBottom: 20,
-    overflow: "hidden",
-  },
-  image: {
-    width: "100%",
-    height: "100%",
-  },
-  actionButtons: {
-    flexDirection: "row",
-    justifyContent: "center",
-  },
-  actionButton: {
-    backgroundColor: Colors.primary,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    marginHorizontal: 8,
-  },
-  disabledButton: {
-    backgroundColor: "#ccc",
-  },
-  actionButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-    marginLeft: 8,
-  },
-  offlineText: {
-    marginTop: 16,
-    textAlign: "center",
-    color: Colors.red,
-    fontSize: 12,
-  },
   button: {
     backgroundColor: Colors.primary,
     paddingVertical: 12,
@@ -156,12 +197,70 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+  },
+  infoContainer: {
+    justifyContent: "center",
+  },
+  type: {
+    fontSize: 14,
+    color: "#888",
+    marginBottom: 4,
+  },
+  category: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  amount: {
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#eee",
+    marginVertical: 16,
+  },
+  detailsContainer: {
+    marginBottom: 16,
+  },
+  detailRow: {
+    marginBottom: 16,
+  },
+  detailLabel: {
+    fontSize: 14,
+    color: "#888",
+    marginBottom: 4,
+  },
+  detailValue: {
+    fontSize: 16,
+    color: "#333",
+  },
+  statusContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   backButton: {
     backgroundColor: Colors.primary,
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: 20,
+    marginBottom: 40,
   },
   backButtonText: {
     color: "white",
